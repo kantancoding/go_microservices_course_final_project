@@ -7,6 +7,6 @@ spec:
   selector:
     app: mysql-report
   ports:
-    - port: 3336
-      targetPort: 3336
+    - port: 3306
+      targetPort: 3306
       protocol: TCP
