@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql-report
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql-report
+  ports:
+    - port: 3336
+      targetPort: 3336
+      protocol: TCP

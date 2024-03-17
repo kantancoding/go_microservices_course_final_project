@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-report
+  labels:
+    app: mysql-report
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-report
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-report
+    spec:
+      containers:
+        - name: mysql-report
+          image: mysql:latest
+          envFrom:
+            - configMapRef:
+                name: mysql-report-configmap
+            - secretRef:
+                name: mysql-report-secret
+          volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d/init.sql
+              name: init-sql
+              readOnly: true
+          securityContext:
+            privileged: true
+      volumes:
+        - name: init-sql
+          hostPath:
+            path: /course_project/go_microservices_course_final_project/rakhimjon_shokirov/report_service/init.sql
+            type: File
