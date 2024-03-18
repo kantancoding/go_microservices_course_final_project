@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: report-generator
+spec:
+  type: ClusterIP
+  selector:
+    app: report
+  ports:
+    - port: 9000
+      targetPort: 9000
+      protocol: TCP
