@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"report_generator_service/report_generator_service/config"
-	"report_generator_service/report_generator_service/internal/implementation"
+	"report_generator_service/config"
+	"report_generator_service/internal/implementation"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
