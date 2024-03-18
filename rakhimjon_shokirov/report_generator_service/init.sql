@@ -2,7 +2,7 @@ CREATE USER 'report_generator_user'@'%' IDENTIFIED BY 'Auth123';
 
 CREATE DATABASE IF NOT EXISTS report;
 
-GRANT ALL PRIVILEGES ON report.* TO 'report_generator_user'@'%';
+GRANT SELECT, DELETE, CREATE ON report.* TO 'report_generator_user'@'%';
 
 USE report;
 
