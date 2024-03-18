@@ -6,7 +6,7 @@ import (
 )
 
 func Insert(ctx context.Context, reportDB *sql.DB, dailyAmount int64) error {
-	stmt, err := reportDB.PrepareContext(ctx, "insert into report (daily_amount) values(?)")
+	stmt, err := reportDB.PrepareContext(ctx, "insert into report (daily_payment_report) values(?)")
 	if err != nil {
 		return err
 	}

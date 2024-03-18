@@ -36,5 +36,5 @@ spec:
       volumes:
         - name: init-sql
           hostPath:
-            path: /course_project/go_microservices_course_final_project/rakhimjon_shokirov/report_service/init.sql
+            path: report_generator_service/init.sql
             type: File

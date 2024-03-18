@@ -6,16 +6,13 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"report_generator_service/report_generator_service/config"
+	"report_generator_service/report_generator_service/internal/implementation"
 	"time"
-
-	"go_microservices_course_final_project/rakhimjon_shokirov/report_service/internal/implementation"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/robfig/cron"
-)
-
-var (
-	reportDb, ledgerDb *sql.DB
+	"github.com/sethvargo/go-envconfig"
 )
 
 type application struct {
@@ -24,22 +21,13 @@ type application struct {
 }
 
 func main() {
-	quitSignal := make(chan os.Signal, 1)
+	var (
+		quitSignal = make(chan os.Signal, 1)
+		app        application
+		cfg        config.Config
+	)
+
 	signal.Notify(quitSignal, os.Interrupt)
-	app := application{}
-
-	// Open a database connection
-	rDB, err := initReportDB()
-	if err != nil {
-		log.Fatal("error initilizing rDB: ", err.Error())
-	}
-	app.reportDb = rDB
-
-	lDb, err := initLedgerReadOnlyDB()
-	if err != nil {
-		log.Fatal("error initilizing lDb: ", err.Error())
-	}
-	app.ledgerDb = lDb
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -47,6 +35,36 @@ func main() {
 		log.Printf("\nSystem Call: %+v", OSCall)
 		cancel()
 	}()
+
+	if err := envconfig.Process(context.TODO(), &cfg); err != nil {
+		log.Fatal(err)
+	}
+
+	// Open a report database connection
+	rDB, err := initDB(
+		cfg.ReportMysql.User,
+		cfg.ReportMysql.Password,
+		cfg.ReportMysql.Host,
+		cfg.ReportMysql.Port,
+		cfg.ReportMysql.Database,
+	)
+	if err != nil {
+		log.Fatal("error initilizing rDB: ", err.Error())
+	}
+	app.reportDb = rDB
+
+	// Open a ledger database connection
+	lDb, err := initDB(
+		cfg.LedgerMysql.User,
+		cfg.LedgerMysql.Password,
+		cfg.LedgerMysql.Host,
+		cfg.LedgerMysql.Port,
+		cfg.LedgerMysql.Database,
+	)
+	if err != nil {
+		log.Fatal("error initilizing lDb: ", err.Error())
+	}
+	app.ledgerDb = lDb
 
 	app.run(ctx)
 }

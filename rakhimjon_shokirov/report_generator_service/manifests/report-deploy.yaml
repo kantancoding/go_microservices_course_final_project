@@ -1,14 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: report
+  name: report-generator
   labels:
-    app: report
+    app: report-generator
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: report
+      app: report-generator
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -16,13 +16,13 @@ spec:
   template:
     metadata:
       labels:
-        app: report
+        app: report-generator
     spec:
       containers:
-        - name: report
-          image: 147ajt369/report
+        - name: report-generator
+          image: 147ajt369/report-generator
           envFrom:
             - configMapRef:
-                name: report-configmap
+                name: report-generator-configmap
             - secretRef:
-                name: report-secret
+                name: report-generator-secret
