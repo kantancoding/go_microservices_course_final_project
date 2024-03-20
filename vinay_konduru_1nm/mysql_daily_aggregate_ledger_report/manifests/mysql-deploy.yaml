@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-daily-aggregate-ledger-report
+  labels:
+    app: mysql-daily-aggregate-ledger-report
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-daily-aggregate-ledger-report
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-daily-aggregate-ledger-report
+    spec:
+      containers:
+      - name: mysql-daily-aggregate-ledger-report
+        image: mysql:latest
+        envFrom:
+          - configMapRef:
+              name: mysql-daily-aggregate-ledger-report-configmap
+          - secretRef:
+              name: mysql-daily-aggregate-ledger-report-secret
+        volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d/init.sql
+            name: init-sql
+            readOnly: true
+        securityContext:
+          privileged: true
+      volumes:
+        - name: init-sql
+          hostPath:
+            path: /vinay_konduru_1nm/daily_aggregate_ledger_report/init.sql
+            type: File
