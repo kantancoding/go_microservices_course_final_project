@@ -13,7 +13,7 @@ const (
 	dbDriver                     = "mysql"
 	paymentReportDbName          = "payment_report"
 	ledgerDbName                 = "ledger"
-	insertReportQuery            = "INSERT INTO payment_report (amount, aggregated_date) VALUES (?, ?)"
+	insertReportQuery            = "INSERT INTO payment_report (amount, report_date) VALUES (?, ?)"
 	dailyAggregateQuery          = "SELECT SUM(amount) AS amount FROM ledger WHERE DATE(transaction_date) = ?"
 	ledgerDbConnSubString        = "ledger"
 	paymentReportDbConnSubString = "payment-report"
@@ -49,25 +49,25 @@ func DailyPaymentsReport() (string, error) {
 	}()
 	db = dbInit(ledgerDbName, ledgerDbConnSubString)
 	var (
-		yesterday = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
-		amount    int64
-		failure   = fmt.Sprintf("Failed to generate report for %s", yesterday)
+		reportDate = time.Now().AddDate(0, 0, -1).Format("2006-01-02")
+		amount     int64
+		failure    = fmt.Sprintf("Failed to generate report for %s", reportDate)
 	)
-	err := db.QueryRow(dailyAggregateQuery, yesterday).Scan(&amount)
+	err := db.QueryRow(dailyAggregateQuery, reportDate).Scan(&amount)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return failure, sql.ErrNoRows
 		}
 		return failure, err
 	}
-	err = storePaymentReport(amount, yesterday)
+	err = storePaymentReport(amount, reportDate)
 	if err != nil {
 		return failure, err
 	}
-	return fmt.Sprintf("Daily aggregate for %s is %d", yesterday, amount), nil
+	return fmt.Sprintf("Daily aggregate for %s is %d", reportDate, amount), nil
 }
 
-func storePaymentReport(dailyAggregate int64, yesterday string) error {
+func storePaymentReport(amount int64, reportDate string) error {
 	defer func() {
 		if err := db.Close(); err != nil {
 			log.Printf("Error closing payment_report database: %s", err)
@@ -78,7 +78,7 @@ func storePaymentReport(dailyAggregate int64, yesterday string) error {
 	if err != nil {
 		return err
 	}
-	res, err := stmt.Exec(dailyAggregate, yesterday)
+	res, err := stmt.Exec(amount, reportDate)
 	log.Printf("result of insert query execution in payment_report is:%v", res)
 	return err
 }
