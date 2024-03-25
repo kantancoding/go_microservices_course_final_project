@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-report-generator
+  labels:
+    app: mysql-report-generator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-report-generator
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-report-generator
+    spec:
+      containers:
+      - name: mysql-report-generator
+        image: mysql:latest
+        envFrom:
+          - configMapRef:
+              name: mysql-report-generator-configmap
+          - secretRef:
+              name: mysql-report-generator-secret
+        volumeMounts:
+          - mountPath: /docker-entrypoint-initdb.d/init.sql
+            name: init-sql
+            readOnly: true
+        securityContext:
+          privileged: true
+      volumes:
+        - name: init-sql
+          hostPath:
+            path: /vinay_konduru_1nm/report_generator/init.sql
+            type: File
