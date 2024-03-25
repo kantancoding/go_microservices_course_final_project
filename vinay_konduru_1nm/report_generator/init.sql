@@ -9,7 +9,7 @@ USE payment_report;
 CREATE TABLE `payment_report` (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   amount INT NOT NULL,
-  aggregated_date VARCHAR(255) NOT NULL,
-  report_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  report_date VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
